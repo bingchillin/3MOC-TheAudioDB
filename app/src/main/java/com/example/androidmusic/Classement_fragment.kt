@@ -1,79 +1,62 @@
 package com.example.androidmusic
 
+
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ProgressBar
+import androidx.core.content.ContentProviderCompat.requireContext
+import androidx.core.content.res.TypedArrayUtils.getString
 import androidx.fragment.app.Fragment
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
+import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.FragmentPagerAdapter
+import androidx.viewpager.widget.ViewPager
+import com.google.android.material.tabs.TabLayout
+import java.util.Locale
 
-class ClassementListFragment : Fragment(){
+class ClassementFragment : Fragment() {
 
-    private val classementAdapter = ClassementsAdapter(object : OnClassementClickListener {
-        override fun onProductClicked(user: User) {
-            // Ouvrir l'écran
-            //findNavController().navigate(ProductsListFragmentDirections.actionProductsListFragmentToProductFragment(product.barcode))
-        }
-    })
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return inflater.inflate(R.layout.list_classement, container, false)
+        return inflater.inflate(R.layout.classement_fragment, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val list = view.findViewById<RecyclerView>(R.id.list_classement)
-        list.layoutManager = LinearLayoutManager(requireContext())
-        list.adapter = classementsAdapter
+        val pagerAdapter = PagerAdapter(childFragmentManager)
+        val viewPager = view.findViewById<ViewPager>(R.id.view_pager)
+        viewPager.adapter = pagerAdapter
 
-        // Appel de l'API pour récupérer les utilisateurs et les ajouter à la liste data
-        GlobalScope.launch(Dispatchers.Main) {
-            try {
-                val classements = NetworkClassementManager.getClassement().await()
-                classementsAdapter.setData(classements)
-            } catch (e: Exception) {
-                // Gérer les erreurs ici
-            }
-        }
+        val tabLayout = view.findViewById<TabLayout>(R.id.tab_layout)
+        tabLayout.setupWithViewPager(viewPager)
     }
 }
 
-class ClassementsAdapter(private val callback: OnClassementClickListener) : RecyclerView.Adapter<ClassementViewHolder>() {
-    private val data = mutableListOf<Music>()
+class PagerAdapter(fm: FragmentManager) : FragmentPagerAdapter(fm, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
 
-    // Cette fonction permet de mettre à jour la liste de données avec de nouveaux utilisateurs
-    fun setData(users: List<User>) {
-        data.clear()
-        data.addAll(users)
-        notifyDataSetChanged()
+    override fun getCount(): Int {
+        return 2
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): UserViewHolder {
-        return UserViewHolder(
-            LayoutInflater.from(parent.context)
-                .inflate(R.layout.users_list_cell, parent, false)
-        )
-    }
-
-    override fun onBindViewHolder(holder: UserViewHolder, position: Int) {
-        Log.d("ESGI", position.toString())
-        val user = data[position]
-        holder.update(user)
-        holder.itemView.setOnClickListener {
-            callback.onProductClicked(user)
+    override fun getItem(position: Int): Fragment {
+        return when (position) {
+            0 -> MusicListFragment() // Premier onglet, affiche la liste des musiques
+            1 -> AlbumListFragment() // Deuxième onglet, affiche la liste des albums
+            else -> throw IllegalArgumentException("Invalid tab position")
         }
     }
 
-    override fun getItemCount(): Int {
-        return data.size
+    override fun getPageTitle(position: Int): CharSequence? {
+        return when (position) {
+
+            0 -> "Titres"
+            1 -> "Albums"
+            else -> null
+        }
     }
 }

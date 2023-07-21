@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/app_nav"
+    app:startDestination="@id/classementFragment">
+    <fragment
+        android:id="@+id/classementFragment"
+        android:name="com.example.androidmusic.ClassementFragment"
+        android:label="ClassementFragment" >
+        <action
+            android:id="@+id/action_classementFragment_to_artistFragment"
+            app:destination="@id/artistFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/artistFragment"
+        android:name="com.example.androidmusic.ArtistFragment"
+        android:label="ArtistFragment" >
+    <argument
+        android:name="id"
+        app:argType="string" />
+    </fragment>
+</navigation>

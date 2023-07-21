@@ -7,38 +7,52 @@ import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
 import retrofit2.http.Query
 
+data class ClassementMusics(
+    val trending: List<Music>,
+)
+data class ClassementAlbums(
+    val trending: List<Album>,
+)
+
 data class Music(
+    val idAlbum:String,
+    val idArtist: String,
     val intChartPlace: String,
     val strArtistMBID:String,
+    val strAlbumMBID:String,
     val strArtist: String,
     val strAlbum: String,
+    val strTrack: String,
     val strTrackThumb: String,
 )
 
 data class Album(
+    val idAlbum:String,
+    val idArtist: String,
     val intChartPlace: String,
     val strArtistMBID:String,
+    val strAlbumMBID:String,
     val strArtist: String,
     val strAlbum: String,
-    val strTrackThumb: String,
+    val strAlbumThumb: String,
 )
 
 interface RequeteAPI {
 
     //Mettre des parametres dans l'URL
-
-    @GET("/trending.php") // Modifier l'URL selon le chemin de l'API qui renvoie la liste des utilisateurs
+    @GET("trending.php")
     fun getMusicClassement(
         @Query("country") country: String = "us",
-        @Query("type") type: String = "us",
-        @Query("country") format: String = "singles",
-    ): Deferred<List<Music>>
+        @Query("type") type: String = "itunes",
+        @Query("format") format: String = "singles",
+    ): Deferred<ClassementMusics>
 
+    @GET("trending.php")
     fun getAlbumClassement(
         @Query("country") country: String = "us",
-        @Query("type") type: String = "us",
-        @Query("country") format: String = "albums",
-    ): Deferred<List<Album>>
+        @Query("type") type: String = "itunes",
+        @Query("format") formatAlbum: String = "albums", // Change the name to formatAlbum
+    ): Deferred<ClassementAlbums>
 }
 
 object NetworkManagerClassement {
@@ -50,11 +64,11 @@ object NetworkManagerClassement {
         .build()
         .create(RequeteAPI::class.java)
 
-    fun getMusicClassement(): Deferred<List<Music>> {
+    fun getMusicClassement(): Deferred<ClassementMusics> {
         return api.getMusicClassement()
     }
 
-    fun getAlbumClassement(): Deferred<List<Album>> {
+    fun getAlbumClassement(): Deferred<ClassementAlbums> {
         return api.getAlbumClassement()
     }
 }
